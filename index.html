@@ -3,8 +3,8 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake — Моя гра</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Snake 2D</title>
 
 <style>
 * {
@@ -15,25 +15,27 @@
 
 body {
     min-height: 100vh;
-    background: radial-gradient(circle at top, #172c39, #080e18 70%);
+    background: radial-gradient(circle at top, #183344, #080e18 75%);
     color: white;
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 15px;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .game {
     width: 100%;
-    max-width: 650px;
+    max-width: 620px;
     text-align: center;
 }
 
 h1 {
-    font-size: 42px;
-    margin-bottom: 8px;
+    font-size: clamp(30px, 7vw, 44px);
     letter-spacing: 4px;
+    margin-bottom: 7px;
 }
 
 h1 span {
@@ -41,32 +43,34 @@ h1 span {
 }
 
 .subtitle {
-    color: #8495a7;
-    margin-bottom: 25px;
+    color: #91a8b8;
+    margin-bottom: 18px;
+    font-size: 14px;
 }
 
 .stats {
     display: flex;
-    gap: 12px;
-    margin-bottom: 15px;
+    gap: 9px;
+    margin-bottom: 13px;
 }
 
 .stat {
     flex: 1;
-    background: #142333;
-    border: 1px solid #263e50;
-    padding: 15px;
-    border-radius: 14px;
+    background: #142536;
+    border: 1px solid #294558;
+    padding: 12px 5px;
+    border-radius: 13px;
 }
 
 .stat small {
     display: block;
-    color: #8da4b8;
-    margin-bottom: 7px;
+    color: #91a8b8;
+    font-size: 11px;
+    margin-bottom: 6px;
 }
 
 .stat strong {
-    font-size: 25px;
+    font-size: 23px;
     color: #36e6a0;
 }
 
@@ -74,29 +78,30 @@ h1 span {
     position: relative;
     background: #0c1823;
     border: 2px solid #294456;
-    border-radius: 18px;
-    padding: 10px;
-    box-shadow: 0 15px 60px #0008;
+    border-radius: 16px;
+    padding: 7px;
+    box-shadow: 0 15px 50px #0008;
 }
 
 canvas {
-    display: block;
     width: 100%;
     height: auto;
-    border-radius: 10px;
+    display: block;
+    border-radius: 9px;
+    touch-action: none;
 }
 
 .overlay {
     position: absolute;
-    inset: 10px;
-    border-radius: 10px;
-    background: #06111ddd;
+    inset: 7px;
+    border-radius: 9px;
+    background: #06111deF;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 15px;
-    padding: 20px;
+    gap: 14px;
+    padding: 15px;
 }
 
 .overlay.hidden {
@@ -104,60 +109,106 @@ canvas {
 }
 
 .overlay h2 {
-    font-size: 32px;
     color: #36e6a0;
+    font-size: clamp(24px, 6vw, 34px);
 }
 
 .overlay p {
-    color: #b4c3d0;
-    line-height: 1.5;
+    color: #c0ced8;
+    line-height: 1.6;
+    font-size: 14px;
 }
 
 button {
     border: none;
     cursor: pointer;
-    padding: 13px 25px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.main-button {
+    padding: 14px 26px;
     border-radius: 10px;
     background: #36e6a0;
     color: #071810;
     font-size: 16px;
     font-weight: bold;
-    transition: 0.2s;
 }
 
-button:hover {
-    transform: scale(1.05);
-    background: #65ffc0;
+.main-button:active {
+    transform: scale(.96);
 }
 
-.controls {
+.actions {
     display: flex;
     justify-content: center;
-    flex-wrap: wrap;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 13px;
 }
 
-.controls button {
+.actions button {
+    padding: 11px 16px;
+    border-radius: 10px;
     background: #1a3042;
-    color: white;
     border: 1px solid #36556a;
+    color: white;
+    font-size: 14px;
 }
 
-.controls button:hover {
-    background: #294b60;
+.actions button:active {
+    background: #31556a;
+}
+
+.mobile-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    margin-top: 18px;
+}
+
+.mobile-controls .middle {
+    display: flex;
+    gap: 9px;
+}
+
+.mobile-controls button {
+    width: 65px;
+    height: 53px;
+    background: #193448;
+    border: 1px solid #36e6a0;
+    border-radius: 13px;
+    color: white;
+    font-size: 25px;
+}
+
+.mobile-controls button:active {
+    background: #36e6a0;
+    color: #071810;
 }
 
 .help {
-    color: #8295a6;
-    margin-top: 20px;
-    font-size: 13px;
-    line-height: 1.8;
+    color: #8196a7;
+    font-size: 12px;
+    margin-top: 17px;
+    line-height: 1.7;
 }
 
-@media(max-width: 450px) {
-    h1 { font-size: 32px; }
-    .stat { padding: 10px; }
+@media (min-width: 700px) {
+    .mobile-controls {
+        display: none;
+    }
+}
+
+@media (max-width: 380px) {
+    .stat strong {
+        font-size: 19px;
+    }
+
+    .mobile-controls button {
+        width: 59px;
+        height: 49px;
+    }
 }
 </style>
 </head>
@@ -166,8 +217,8 @@ button:hover {
 
 <div class="game">
 
-    <h1> SNAKE <span>2D</span></h1>
-    <p class="subtitle">Твоя власна гра. Твій власний рекорд.</p>
+    <h1>SNAKE <span>2D</span></h1>
+    <p class="subtitle">Твоя власна гра!</p>
 
     <div class="stats">
         <div class="stat">
@@ -193,22 +244,39 @@ button:hover {
         <div class="overlay" id="overlay">
             <h2 id="message">🐍 SNAKE</h2>
             <p id="description">
-                Збирай їжу, збільшуй змійку<br>
-                та встановлюй рекорди!
+                Збирай їжу та збільшуй змійку!<br>
+                Спробуй побити рекорд.
             </p>
-            <button id="start">ПОЧАТИ ГРУ</button>
+            <button class="main-button" id="start">
+                ПОЧАТИ ГРУ
+            </button>
         </div>
 
     </div>
 
-    <div class="controls">
+    <div class="actions">
         <button id="pause">⏸ Пауза</button>
         <button id="restart">↻ Заново</button>
         <button id="sound">🔊 Звук</button>
     </div>
 
+    <!-- Сенсорне керування -->
+
+    <div class="mobile-controls">
+
+        <button onclick="mobileMove('up')">⬆️</button>
+
+        <div class="middle">
+            <button onclick="mobileMove('left')">⬅️</button>
+            <button onclick="mobileMove('down')">⬇️</button>
+            <button onclick="mobileMove('right')">➡️</button>
+        </div>
+
+    </div>
+
     <p class="help">
-        КЕРУВАННЯ: WASD або стрілки клавіатури<br>
+        КОМП'ЮТЕР: стрілки або WASD<br>
+        ТЕЛЕФОН: кнопки або рух пальцем по полю<br>
         ПРОБІЛ — пауза
     </p>
 
@@ -227,50 +295,80 @@ let snake;
 let food;
 let direction;
 let nextDirection;
-let score;
+let score = 0;
 let best = Number(localStorage.getItem("snakeBest")) || 0;
-let speed;
-let gameInterval;
+let speed = 1;
+
 let running = false;
 let paused = false;
 let soundEnabled = true;
+let gameInterval = null;
+let lastMoveTime = 0;
 
-const scoreElement = document.getElementById("score");
-const bestElement = document.getElementById("best");
-const speedElement = document.getElementById("speed");
+const scoreEl = document.getElementById("score");
+const bestEl = document.getElementById("best");
+const speedEl = document.getElementById("speed");
+
 const overlay = document.getElementById("overlay");
 const message = document.getElementById("message");
 const description = document.getElementById("description");
 const startButton = document.getElementById("start");
 
-bestElement.textContent = best;
+bestEl.textContent = best;
 
-// Звуки гри
+// Звук
 
-function playSound(frequency = 440) {
+let audioContext;
+
+function playSound(freq = 440) {
     if (!soundEnabled) return;
 
     try {
-        const audio = new AudioContext();
-        const oscillator = audio.createOscillator();
-        const gain = audio.createGain();
+        audioContext = audioContext || new (
+            window.AudioContext || window.webkitAudioContext
+        )();
+
+        if (audioContext.state === "suspended") {
+            audioContext.resume();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
 
         oscillator.connect(gain);
-        gain.connect(audio.destination);
+        gain.connect(audioContext.destination);
 
-        oscillator.frequency.value = frequency;
-        oscillator.type = "sine";
-
-        gain.gain.setValueAtTime(0.08, audio.currentTime);
+        oscillator.frequency.value = freq;
+        gain.gain.setValueAtTime(0.07, audioContext.currentTime);
         gain.gain.exponentialRampToValueAtTime(
-            0.001, audio.currentTime + 0.15
+            0.001, audioContext.currentTime + 0.15
         );
 
         oscillator.start();
-        oscillator.stop(audio.currentTime + 0.15);
+        oscillator.stop(audioContext.currentTime + 0.15);
 
-        oscillator.onended = () => audio.close();
     } catch (e) {}
+}
+
+// Статистика
+
+function updateStats() {
+    scoreEl.textContent = score;
+    bestEl.textContent = best;
+    speedEl.textContent = speed;
+}
+
+// Створення їжі
+
+function createFood() {
+    do {
+        food = {
+            x: Math.floor(Math.random() * COUNT),
+            y: Math.floor(Math.random() * COUNT)
+        };
+    } while (
+        snake.some(p => p.x === food.x && p.y === food.y)
+    );
 }
 
 // Початковий стан
@@ -293,43 +391,16 @@ function resetGame() {
     draw();
 }
 
-// Створення їжі
-
-function createFood() {
-    do {
-        food = {
-            x: Math.floor(Math.random() * COUNT),
-            y: Math.floor(Math.random() * COUNT)
-        };
-    } while (
-        snake.some(part =>
-            part.x === food.x && part.y === food.y
-        )
-    );
-}
-
-// Оновлення інформації
-
-function updateStats() {
-    scoreElement.textContent = score;
-    bestElement.textContent = best;
-    speedElement.textContent = speed;
-}
-
-// Малювання поля
+// Малювання
 
 function draw() {
-
-    ctx.clearRect(0, 0, SIZE, SIZE);
-
-    // Фон
 
     ctx.fillStyle = "#0c1b28";
     ctx.fillRect(0, 0, SIZE, SIZE);
 
     // Сітка
 
-    ctx.strokeStyle = "#152a38";
+    ctx.strokeStyle = "#172c3b";
     ctx.lineWidth = 1;
 
     for (let i = 0; i <= COUNT; i++) {
@@ -350,7 +421,7 @@ function draw() {
     const fy = food.y * CELL + CELL / 2;
 
     ctx.shadowColor = "#ff5577";
-    ctx.shadowBlur = 18;
+    ctx.shadowBlur = 20;
     ctx.fillStyle = "#ff5577";
 
     ctx.beginPath();
@@ -365,15 +436,23 @@ function draw() {
 
         const x = part.x * CELL + 2;
         const y = part.y * CELL + 2;
-
         const size = CELL - 4;
 
-        ctx.fillStyle = index === 0
-            ? "#61ffc0"
-            : "#20c98a";
+        const gradient = ctx.createLinearGradient(
+            x, y, x + size, y + size
+        );
 
+        if (index === 0) {
+            gradient.addColorStop(0, "#7dffd0");
+            gradient.addColorStop(1, "#2de6a0");
+        } else {
+            gradient.addColorStop(0, "#37e6a0");
+            gradient.addColorStop(1, "#129c70");
+        }
+
+        ctx.fillStyle = gradient;
         ctx.shadowColor = "#36e6a0";
-        ctx.shadowBlur = index === 0 ? 12 : 4;
+        ctx.shadowBlur = index === 0 ? 14 : 4;
 
         ctx.beginPath();
         ctx.roundRect(x, y, size, size, 7);
@@ -381,12 +460,13 @@ function draw() {
 
         ctx.shadowBlur = 0;
 
-        // Очі голови
+        // Очі
 
         if (index === 0) {
-            ctx.fillStyle = "#09251a";
 
-            let eyes = [];
+            ctx.fillStyle = "#062519";
+
+            let eyes;
 
             if (direction.x === 1) {
                 eyes = [[17, 7], [17, 15]];
@@ -400,20 +480,14 @@ function draw() {
 
             eyes.forEach(([ex, ey]) => {
                 ctx.beginPath();
-                ctx.arc(
-                    x + ex,
-                    y + ey,
-                    2.3,
-                    0,
-                    Math.PI * 2
-                );
+                ctx.arc(x + ex, y + ey, 2.3, 0, Math.PI * 2);
                 ctx.fill();
             });
         }
     });
 }
 
-// Рух змійки
+// Рух
 
 function move() {
 
@@ -426,30 +500,23 @@ function move() {
         y: snake[0].y + direction.y
     };
 
-    // Перевірка стін
+    // Стіни
 
     if (
-        head.x < 0 ||
-        head.x >= COUNT ||
-        head.y < 0 ||
-        head.y >= COUNT
+        head.x < 0 || head.x >= COUNT ||
+        head.y < 0 || head.y >= COUNT
     ) {
         gameOver();
         return;
     }
 
-    const eating =
-        head.x === food.x && head.y === food.y;
+    const eating = head.x === food.x && head.y === food.y;
 
     const body = eating ? snake : snake.slice(0, -1);
 
-    // Перевірка зіткнення
+    // Зіткнення
 
-    if (
-        body.some(part =>
-            part.x === head.x && part.y === head.y
-        )
-    ) {
+    if (body.some(p => p.x === head.x && p.y === head.y)) {
         gameOver();
         return;
     }
@@ -459,7 +526,6 @@ function move() {
     if (eating) {
 
         score += 10;
-
         playSound(650);
 
         if (score > best) {
@@ -470,10 +536,7 @@ function move() {
         speed = Math.min(10, 1 + Math.floor(score / 50));
 
         createFood();
-
         updateStats();
-
-        // Змінюємо швидкість
 
         clearInterval(gameInterval);
 
@@ -489,12 +552,11 @@ function move() {
     draw();
 }
 
-// Завершення гри
+// Завершення
 
 function gameOver() {
 
     running = false;
-
     clearInterval(gameInterval);
 
     playSound(180);
@@ -535,33 +597,58 @@ function togglePause() {
     paused = !paused;
 
     if (paused) {
+
         message.textContent = "⏸ ПАУЗА";
-        description.textContent = "Натисни ПРОБІЛ, щоб продовжити";
+        description.textContent = "Натисни продовжити";
         startButton.textContent = "ПРОДОВЖИТИ";
+
         overlay.classList.remove("hidden");
+
     } else {
+
         overlay.classList.add("hidden");
+
+    }
+}
+
+// Керування телефоном
+
+function mobileMove(move) {
+
+    if (!running || paused) return;
+
+    if (move === "up" && direction.y !== 1) {
+        nextDirection = {x: 0, y: -1};
+    }
+
+    if (move === "down" && direction.y !== -1) {
+        nextDirection = {x: 0, y: 1};
+    }
+
+    if (move === "left" && direction.x !== 1) {
+        nextDirection = {x: -1, y: 0};
+    }
+
+    if (move === "right" && direction.x !== -1) {
+        nextDirection = {x: 1, y: 0};
     }
 }
 
 // Клавіатура
 
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", e => {
 
     const key = e.key.toLowerCase();
 
-    const keys = [
+    if ([
         "arrowup", "arrowdown",
-        "arrowleft", "arrowright",
-        "w", "a", "s", "d", " "
-    ];
-
-    if (keys.includes(key)) {
+        "arrowleft", "arrowright", " "
+    ].includes(key)) {
         e.preventDefault();
     }
 
     if (key === " ") {
-        if (running) togglePause();
+        togglePause();
         return;
     }
 
@@ -570,32 +657,59 @@ document.addEventListener("keydown", (e) => {
     if (
         (key === "arrowup" || key === "w") &&
         direction.y !== 1
-    ) {
-        nextDirection = {x: 0, y: -1};
-    }
+    ) mobileMove("up");
 
     if (
         (key === "arrowdown" || key === "s") &&
         direction.y !== -1
-    ) {
-        nextDirection = {x: 0, y: 1};
-    }
+    ) mobileMove("down");
 
     if (
         (key === "arrowleft" || key === "a") &&
         direction.x !== 1
-    ) {
-        nextDirection = {x: -1, y: 0};
-    }
+    ) mobileMove("left");
 
     if (
         (key === "arrowright" || key === "d") &&
         direction.x !== -1
-    ) {
-        nextDirection = {x: 1, y: 0};
-    }
+    ) mobileMove("right");
 
 });
+
+// Свайпи пальцем
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener("touchstart", e => {
+
+    const touch = e.changedTouches[0];
+
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+
+}, {passive: true});
+
+canvas.addEventListener("touchend", e => {
+
+    const touch = e.changedTouches[0];
+
+    const dx = touch.clientX - touchStartX;
+    const dy = touch.clientY - touchStartY;
+
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+
+        mobileMove(dx > 0 ? "right" : "left");
+
+    } else {
+
+        mobileMove(dy > 0 ? "down" : "up");
+
+    }
+
+}, {passive: true});
 
 // Кнопки
 
@@ -616,8 +730,9 @@ document.getElementById("restart")
     .addEventListener("click", () => {
 
         message.textContent = "🐍 SNAKE";
+
         description.innerHTML =
-            "Збирай їжу, збільшуй змійку<br>та встановлюй рекорди!";
+            "Збирай їжу та збільшуй змійку!<br>Спробуй побити рекорд.";
 
         startButton.textContent = "ПОЧАТИ ГРУ";
 
@@ -625,7 +740,7 @@ document.getElementById("restart")
     });
 
 document.getElementById("sound")
-    .addEventListener("click", (e) => {
+    .addEventListener("click", e => {
 
         soundEnabled = !soundEnabled;
 
@@ -634,9 +749,14 @@ document.getElementById("sound")
             : "🔇 Без звуку";
     });
 
-// Початкове відображення
+// Запуск початкового екрана
 
 resetGame();
+
+</script>
+
+</body>
+</html>
 
 </script>
 
