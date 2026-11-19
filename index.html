@@ -1,0 +1,644 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake — Моя гра</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    background: radial-gradient(circle at top, #172c39, #080e18 70%);
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game {
+    width: 100%;
+    max-width: 650px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 42px;
+    margin-bottom: 8px;
+    letter-spacing: 4px;
+}
+
+h1 span {
+    color: #36e6a0;
+}
+
+.subtitle {
+    color: #8495a7;
+    margin-bottom: 25px;
+}
+
+.stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.stat {
+    flex: 1;
+    background: #142333;
+    border: 1px solid #263e50;
+    padding: 15px;
+    border-radius: 14px;
+}
+
+.stat small {
+    display: block;
+    color: #8da4b8;
+    margin-bottom: 7px;
+}
+
+.stat strong {
+    font-size: 25px;
+    color: #36e6a0;
+}
+
+.board {
+    position: relative;
+    background: #0c1823;
+    border: 2px solid #294456;
+    border-radius: 18px;
+    padding: 10px;
+    box-shadow: 0 15px 60px #0008;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.overlay {
+    position: absolute;
+    inset: 10px;
+    border-radius: 10px;
+    background: #06111ddd;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.overlay h2 {
+    font-size: 32px;
+    color: #36e6a0;
+}
+
+.overlay p {
+    color: #b4c3d0;
+    line-height: 1.5;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    padding: 13px 25px;
+    border-radius: 10px;
+    background: #36e6a0;
+    color: #071810;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background: #65ffc0;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.controls button {
+    background: #1a3042;
+    color: white;
+    border: 1px solid #36556a;
+}
+
+.controls button:hover {
+    background: #294b60;
+}
+
+.help {
+    color: #8295a6;
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+@media(max-width: 450px) {
+    h1 { font-size: 32px; }
+    .stat { padding: 10px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <h1> SNAKE <span>2D</span></h1>
+    <p class="subtitle">Твоя власна гра. Твій власний рекорд.</p>
+
+    <div class="stats">
+        <div class="stat">
+            <small>РАХУНОК</small>
+            <strong id="score">0</strong>
+        </div>
+
+        <div class="stat">
+            <small>РЕКОРД</small>
+            <strong id="best">0</strong>
+        </div>
+
+        <div class="stat">
+            <small>ШВИДКІСТЬ</small>
+            <strong id="speed">1</strong>
+        </div>
+    </div>
+
+    <div class="board">
+
+        <canvas id="canvas" width="600" height="600"></canvas>
+
+        <div class="overlay" id="overlay">
+            <h2 id="message">🐍 SNAKE</h2>
+            <p id="description">
+                Збирай їжу, збільшуй змійку<br>
+                та встановлюй рекорди!
+            </p>
+            <button id="start">ПОЧАТИ ГРУ</button>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button id="pause">⏸ Пауза</button>
+        <button id="restart">↻ Заново</button>
+        <button id="sound">🔊 Звук</button>
+    </div>
+
+    <p class="help">
+        КЕРУВАННЯ: WASD або стрілки клавіатури<br>
+        ПРОБІЛ — пауза
+    </p>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const SIZE = 600;
+const CELL = 25;
+const COUNT = SIZE / CELL;
+
+let snake;
+let food;
+let direction;
+let nextDirection;
+let score;
+let best = Number(localStorage.getItem("snakeBest")) || 0;
+let speed;
+let gameInterval;
+let running = false;
+let paused = false;
+let soundEnabled = true;
+
+const scoreElement = document.getElementById("score");
+const bestElement = document.getElementById("best");
+const speedElement = document.getElementById("speed");
+const overlay = document.getElementById("overlay");
+const message = document.getElementById("message");
+const description = document.getElementById("description");
+const startButton = document.getElementById("start");
+
+bestElement.textContent = best;
+
+// Звуки гри
+
+function playSound(frequency = 440) {
+    if (!soundEnabled) return;
+
+    try {
+        const audio = new AudioContext();
+        const oscillator = audio.createOscillator();
+        const gain = audio.createGain();
+
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
+
+        oscillator.frequency.value = frequency;
+        oscillator.type = "sine";
+
+        gain.gain.setValueAtTime(0.08, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+            0.001, audio.currentTime + 0.15
+        );
+
+        oscillator.start();
+        oscillator.stop(audio.currentTime + 0.15);
+
+        oscillator.onended = () => audio.close();
+    } catch (e) {}
+}
+
+// Початковий стан
+
+function resetGame() {
+    snake = [
+        {x: 12, y: 12},
+        {x: 11, y: 12},
+        {x: 10, y: 12}
+    ];
+
+    direction = {x: 1, y: 0};
+    nextDirection = {x: 1, y: 0};
+
+    score = 0;
+    speed = 1;
+
+    createFood();
+    updateStats();
+    draw();
+}
+
+// Створення їжі
+
+function createFood() {
+    do {
+        food = {
+            x: Math.floor(Math.random() * COUNT),
+            y: Math.floor(Math.random() * COUNT)
+        };
+    } while (
+        snake.some(part =>
+            part.x === food.x && part.y === food.y
+        )
+    );
+}
+
+// Оновлення інформації
+
+function updateStats() {
+    scoreElement.textContent = score;
+    bestElement.textContent = best;
+    speedElement.textContent = speed;
+}
+
+// Малювання поля
+
+function draw() {
+
+    ctx.clearRect(0, 0, SIZE, SIZE);
+
+    // Фон
+
+    ctx.fillStyle = "#0c1b28";
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    // Сітка
+
+    ctx.strokeStyle = "#152a38";
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= COUNT; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * CELL, 0);
+        ctx.lineTo(i * CELL, SIZE);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i * CELL);
+        ctx.lineTo(SIZE, i * CELL);
+        ctx.stroke();
+    }
+
+    // Їжа
+
+    const fx = food.x * CELL + CELL / 2;
+    const fy = food.y * CELL + CELL / 2;
+
+    ctx.shadowColor = "#ff5577";
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = "#ff5577";
+
+    ctx.beginPath();
+    ctx.arc(fx, fy, 9, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    // Змійка
+
+    snake.forEach((part, index) => {
+
+        const x = part.x * CELL + 2;
+        const y = part.y * CELL + 2;
+
+        const size = CELL - 4;
+
+        ctx.fillStyle = index === 0
+            ? "#61ffc0"
+            : "#20c98a";
+
+        ctx.shadowColor = "#36e6a0";
+        ctx.shadowBlur = index === 0 ? 12 : 4;
+
+        ctx.beginPath();
+        ctx.roundRect(x, y, size, size, 7);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        // Очі голови
+
+        if (index === 0) {
+            ctx.fillStyle = "#09251a";
+
+            let eyes = [];
+
+            if (direction.x === 1) {
+                eyes = [[17, 7], [17, 15]];
+            } else if (direction.x === -1) {
+                eyes = [[7, 7], [7, 15]];
+            } else if (direction.y === -1) {
+                eyes = [[7, 7], [15, 7]];
+            } else {
+                eyes = [[7, 17], [15, 17]];
+            }
+
+            eyes.forEach(([ex, ey]) => {
+                ctx.beginPath();
+                ctx.arc(
+                    x + ex,
+                    y + ey,
+                    2.3,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            });
+        }
+    });
+}
+
+// Рух змійки
+
+function move() {
+
+    if (!running || paused) return;
+
+    direction = nextDirection;
+
+    const head = {
+        x: snake[0].x + direction.x,
+        y: snake[0].y + direction.y
+    };
+
+    // Перевірка стін
+
+    if (
+        head.x < 0 ||
+        head.x >= COUNT ||
+        head.y < 0 ||
+        head.y >= COUNT
+    ) {
+        gameOver();
+        return;
+    }
+
+    const eating =
+        head.x === food.x && head.y === food.y;
+
+    const body = eating ? snake : snake.slice(0, -1);
+
+    // Перевірка зіткнення
+
+    if (
+        body.some(part =>
+            part.x === head.x && part.y === head.y
+        )
+    ) {
+        gameOver();
+        return;
+    }
+
+    snake.unshift(head);
+
+    if (eating) {
+
+        score += 10;
+
+        playSound(650);
+
+        if (score > best) {
+            best = score;
+            localStorage.setItem("snakeBest", best);
+        }
+
+        speed = Math.min(10, 1 + Math.floor(score / 50));
+
+        createFood();
+
+        updateStats();
+
+        // Змінюємо швидкість
+
+        clearInterval(gameInterval);
+
+        gameInterval = setInterval(
+            move,
+            Math.max(65, 150 - (speed - 1) * 12)
+        );
+
+    } else {
+        snake.pop();
+    }
+
+    draw();
+}
+
+// Завершення гри
+
+function gameOver() {
+
+    running = false;
+
+    clearInterval(gameInterval);
+
+    playSound(180);
+
+    message.textContent = "💀 ГРУ ЗАВЕРШЕНО";
+
+    description.innerHTML =
+        "Твій рахунок: " + score +
+        "<br>Спробуй побити свій рекорд!";
+
+    startButton.textContent = "ГРАТИ ЗНОВУ";
+
+    overlay.classList.remove("hidden");
+}
+
+// Старт
+
+function startGame() {
+
+    clearInterval(gameInterval);
+
+    resetGame();
+
+    running = true;
+    paused = false;
+
+    overlay.classList.add("hidden");
+
+    gameInterval = setInterval(move, 150);
+}
+
+// Пауза
+
+function togglePause() {
+
+    if (!running) return;
+
+    paused = !paused;
+
+    if (paused) {
+        message.textContent = "⏸ ПАУЗА";
+        description.textContent = "Натисни ПРОБІЛ, щоб продовжити";
+        startButton.textContent = "ПРОДОВЖИТИ";
+        overlay.classList.remove("hidden");
+    } else {
+        overlay.classList.add("hidden");
+    }
+}
+
+// Клавіатура
+
+document.addEventListener("keydown", (e) => {
+
+    const key = e.key.toLowerCase();
+
+    const keys = [
+        "arrowup", "arrowdown",
+        "arrowleft", "arrowright",
+        "w", "a", "s", "d", " "
+    ];
+
+    if (keys.includes(key)) {
+        e.preventDefault();
+    }
+
+    if (key === " ") {
+        if (running) togglePause();
+        return;
+    }
+
+    if (!running || paused) return;
+
+    if (
+        (key === "arrowup" || key === "w") &&
+        direction.y !== 1
+    ) {
+        nextDirection = {x: 0, y: -1};
+    }
+
+    if (
+        (key === "arrowdown" || key === "s") &&
+        direction.y !== -1
+    ) {
+        nextDirection = {x: 0, y: 1};
+    }
+
+    if (
+        (key === "arrowleft" || key === "a") &&
+        direction.x !== 1
+    ) {
+        nextDirection = {x: -1, y: 0};
+    }
+
+    if (
+        (key === "arrowright" || key === "d") &&
+        direction.x !== -1
+    ) {
+        nextDirection = {x: 1, y: 0};
+    }
+
+});
+
+// Кнопки
+
+startButton.addEventListener("click", () => {
+
+    if (paused && running) {
+        togglePause();
+    } else {
+        startGame();
+    }
+
+});
+
+document.getElementById("pause")
+    .addEventListener("click", togglePause);
+
+document.getElementById("restart")
+    .addEventListener("click", () => {
+
+        message.textContent = "🐍 SNAKE";
+        description.innerHTML =
+            "Збирай їжу, збільшуй змійку<br>та встановлюй рекорди!";
+
+        startButton.textContent = "ПОЧАТИ ГРУ";
+
+        startGame();
+    });
+
+document.getElementById("sound")
+    .addEventListener("click", (e) => {
+
+        soundEnabled = !soundEnabled;
+
+        e.target.textContent = soundEnabled
+            ? "🔊 Звук"
+            : "🔇 Без звуку";
+    });
+
+// Початкове відображення
+
+resetGame();
+
+</script>
+
+</body>
+</html>
