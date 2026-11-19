@@ -7,758 +7,449 @@
 <title>Snake 2D</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ min-height:100vh;background:radial-gradient(circle at top,#183344,#080e18 75%);
+ color:white;font-family:Arial,sans-serif;display:flex;
+ justify-content:center;align-items:center;padding:15px;
+ user-select:none
 }
-
-body {
-    min-height: 100vh;
-    background: radial-gradient(circle at top, #183344, #080e18 75%);
-    color: white;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
-    -webkit-user-select: none;
-    user-select: none;
+.game{width:100%;max-width:620px;text-align:center}
+h1{font-size:clamp(30px,7vw,44px);letter-spacing:4px;margin-bottom:7px}
+h1 span{color:#36e6a0}
+.subtitle{color:#91a8b8;margin-bottom:18px;font-size:14px}
+.stats{display:flex;gap:9px;margin-bottom:13px}
+.stat{flex:1;background:#142536;border:1px solid #294558;padding:12px 5px;border-radius:13px}
+.stat small{display:block;color:#91a8b8;font-size:11px;margin-bottom:6px}
+.stat strong{font-size:23px;color:#36e6a0}
+.board{position:relative;background:#0c1823;border:2px solid #294456;border-radius:16px;padding:7px;box-shadow:0 15px 50px #0008}
+canvas{width:100%;height:auto;display:block;border-radius:9px;touch-action:none}
+.overlay{
+ position:absolute;inset:7px;border-radius:9px;background:#06111df2;
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ gap:14px;padding:15px;overflow-y:auto
 }
-
-.game {
-    width: 100%;
-    max-width: 620px;
-    text-align: center;
+.overlay.hidden{display:none}
+.overlay h2{color:#36e6a0;font-size:clamp(24px,6vw,34px)}
+.overlay p{color:#c0ced8;line-height:1.6;font-size:14px}
+button{border:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.main-button{
+ padding:13px 22px;border-radius:10px;background:#36e6a0;color:#071810;
+ font-size:15px;font-weight:bold;min-width:145px
 }
-
-h1 {
-    font-size: clamp(30px, 7vw, 44px);
-    letter-spacing: 4px;
-    margin-bottom: 7px;
+.main-button:active{transform:scale(.96)}
+.menu-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.secondary{
+ padding:11px 15px;border-radius:10px;background:#1a3042;
+ border:1px solid #36556a;color:white;font-size:14px
 }
-
-h1 span {
-    color: #36e6a0;
-}
-
-.subtitle {
-    color: #91a8b8;
-    margin-bottom: 18px;
-    font-size: 14px;
-}
-
-.stats {
-    display: flex;
-    gap: 9px;
-    margin-bottom: 13px;
-}
-
-.stat {
-    flex: 1;
-    background: #142536;
-    border: 1px solid #294558;
-    padding: 12px 5px;
-    border-radius: 13px;
-}
-
-.stat small {
-    display: block;
-    color: #91a8b8;
-    font-size: 11px;
-    margin-bottom: 6px;
-}
-
-.stat strong {
-    font-size: 23px;
-    color: #36e6a0;
-}
-
-.board {
-    position: relative;
-    background: #0c1823;
-    border: 2px solid #294456;
-    border-radius: 16px;
-    padding: 7px;
-    box-shadow: 0 15px 50px #0008;
-}
-
-canvas {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 9px;
-    touch-action: none;
-}
-
-.overlay {
-    position: absolute;
-    inset: 7px;
-    border-radius: 9px;
-    background: #06111deF;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 14px;
-    padding: 15px;
-}
-
-.overlay.hidden {
-    display: none;
-}
-
-.overlay h2 {
-    color: #36e6a0;
-    font-size: clamp(24px, 6vw, 34px);
-}
-
-.overlay p {
-    color: #c0ced8;
-    line-height: 1.6;
-    font-size: 14px;
-}
-
-button {
-    border: none;
-    cursor: pointer;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.main-button {
-    padding: 14px 26px;
-    border-radius: 10px;
-    background: #36e6a0;
-    color: #071810;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.main-button:active {
-    transform: scale(.96);
-}
-
-.actions {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 13px;
-}
-
-.actions button {
-    padding: 11px 16px;
-    border-radius: 10px;
-    background: #1a3042;
-    border: 1px solid #36556a;
-    color: white;
-    font-size: 14px;
-}
-
-.actions button:active {
-    background: #31556a;
-}
-
-.mobile-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 7px;
-    margin-top: 18px;
-}
-
-.mobile-controls .middle {
-    display: flex;
-    gap: 9px;
-}
-
-.mobile-controls button {
-    width: 65px;
-    height: 53px;
-    background: #193448;
-    border: 1px solid #36e6a0;
-    border-radius: 13px;
-    color: white;
-    font-size: 25px;
-}
-
-.mobile-controls button:active {
-    background: #36e6a0;
-    color: #071810;
-}
-
-.help {
-    color: #8196a7;
-    font-size: 12px;
-    margin-top: 17px;
-    line-height: 1.7;
-}
-
-@media (min-width: 700px) {
-    .mobile-controls {
-        display: none;
-    }
-}
-
-@media (max-width: 380px) {
-    .stat strong {
-        font-size: 19px;
-    }
-
-    .mobile-controls button {
-        width: 59px;
-        height: 49px;
-    }
-}
+.secondary:disabled{opacity:.3;cursor:not-allowed}
+.actions{display:flex;justify-content:center;gap:10px;margin-top:13px;flex-wrap:wrap}
+.actions button{padding:11px 16px;border-radius:10px;background:#1a3042;border:1px solid #36556a;color:white;font-size:14px}
+.mobile-controls{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:18px}
+.mobile-controls .middle{display:flex;gap:9px}
+.mobile-controls button{width:65px;height:53px;background:#193448;border:1px solid #36e6a0;border-radius:13px;color:white;font-size:25px}
+.help{color:#8196a7;font-size:12px;margin-top:17px;line-height:1.7}
+.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;max-width:380px}
+.level-btn{padding:13px 3px;border-radius:9px;background:#1a3042;color:white;border:1px solid #36556a;font-weight:bold}
+.level-btn.open{background:#36e6a0;color:#071810}
+.level-btn:disabled{opacity:.35}
+.record-list{width:100%;max-width:350px;text-align:left}
+.record-row{padding:11px;margin:7px 0;background:#142536;border-radius:9px;display:flex;justify-content:space-between}
+@media(min-width:700px){.mobile-controls{display:none}}
+@media(max-width:380px){.stat strong{font-size:19px}.mobile-controls button{width:59px;height:49px}}
 </style>
 </head>
 
 <body>
-
 <div class="game">
 
-    <h1>SNAKE <span>2D</span></h1>
-    <p class="subtitle">Твоя власна гра!</p>
+<h1>SNAKE <span>2D</span></h1>
+<p class="subtitle">Твоя власна гра!</p>
 
-    <div class="stats">
-        <div class="stat">
-            <small>РАХУНОК</small>
-            <strong id="score">0</strong>
-        </div>
+<div class="stats">
+ <div class="stat"><small>РАХУНОК</small><strong id="score">0</strong></div>
+ <div class="stat"><small>РЕКОРД</small><strong id="best">0</strong></div>
+ <div class="stat"><small>РІВЕНЬ</small><strong id="level">1</strong></div>
+</div>
 
-        <div class="stat">
-            <small>РЕКОРД</small>
-            <strong id="best">0</strong>
-        </div>
+<div class="board">
+ <canvas id="canvas" width="600" height="600"></canvas>
 
-        <div class="stat">
-            <small>ШВИДКІСТЬ</small>
-            <strong id="speed">1</strong>
-        </div>
-    </div>
+ <div class="overlay" id="overlay">
+  <h2 id="message">🐍 SNAKE 2D</h2>
+  <p id="description">Вітаємо у грі! Обирай рівень та встановлюй рекорди.</p>
+  <div id="menu" class="menu-buttons">
+   <button class="main-button" onclick="startSelected()">▶ ГРАТИ</button>
+   <button class="secondary" onclick="showLevels()">🏆 РІВНІ</button>
+   <button class="secondary" onclick="showRecords()">📋 РЕКОРДИ</button>
+  </div>
+ </div>
+</div>
 
-    <div class="board">
+<div class="actions">
+ <button id="pause">⏸ Пауза</button>
+ <button id="restart">↻ Заново</button>
+ <button id="sound">🔊 Звук</button>
+</div>
 
-        <canvas id="canvas" width="600" height="600"></canvas>
+<div class="mobile-controls">
+ <button onclick="mobileMove('up')">⬆️</button>
+ <div class="middle">
+  <button onclick="mobileMove('left')">⬅️</button>
+  <button onclick="mobileMove('down')">⬇️</button>
+  <button onclick="mobileMove('right')">➡️</button>
+ </div>
+</div>
 
-        <div class="overlay" id="overlay">
-            <h2 id="message">🐍 SNAKE</h2>
-            <p id="description">
-                Збирай їжу та збільшуй змійку!<br>
-                Спробуй побити рекорд.
-            </p>
-            <button class="main-button" id="start">
-                ПОЧАТИ ГРУ
-            </button>
-        </div>
-
-    </div>
-
-    <div class="actions">
-        <button id="pause">⏸ Пауза</button>
-        <button id="restart">↻ Заново</button>
-        <button id="sound">🔊 Звук</button>
-    </div>
-
-    <!-- Сенсорне керування -->
-
-    <div class="mobile-controls">
-
-        <button onclick="mobileMove('up')">⬆️</button>
-
-        <div class="middle">
-            <button onclick="mobileMove('left')">⬅️</button>
-            <button onclick="mobileMove('down')">⬇️</button>
-            <button onclick="mobileMove('right')">➡️</button>
-        </div>
-
-    </div>
-
-    <p class="help">
-        КОМП'ЮТЕР: стрілки або WASD<br>
-        ТЕЛЕФОН: кнопки або рух пальцем по полю<br>
-        ПРОБІЛ — пауза
-    </p>
-
+<p class="help">
+ КОМП'ЮТЕР: стрілки або WASD<br>
+ ТЕЛЕФОН: кнопки або свайпи<br>
+ ПРОБІЛ — пауза
+</p>
 </div>
 
 <script>
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const SIZE=600,CELL=25,COUNT=24;
+const TARGET=5;
 
-const SIZE = 600;
-const CELL = 25;
-const COUNT = SIZE / CELL;
+let snake,food,direction,nextDirection;
+let score=0,best=0,level=1;
+let running=false,paused=false,soundEnabled=true;
+let gameInterval=null,audioContext;
 
-let snake;
-let food;
-let direction;
-let nextDirection;
-let score = 0;
-let best = Number(localStorage.getItem("snakeBest")) || 0;
-let speed = 1;
+let saved;
+try{
+ saved=JSON.parse(localStorage.getItem("snakeData"))||{};
+}catch(e){saved={}}
 
-let running = false;
-let paused = false;
-let soundEnabled = true;
-let gameInterval = null;
-let lastMoveTime = 0;
+let unlocked=Math.max(1,Math.min(10,Number(saved.unlocked)||1));
+let records=saved.records||{};
+best=Number(saved.best)||0;
 
-const scoreEl = document.getElementById("score");
-const bestEl = document.getElementById("best");
-const speedEl = document.getElementById("speed");
+const $=id=>document.getElementById(id);
 
-const overlay = document.getElementById("overlay");
-const message = document.getElementById("message");
-const description = document.getElementById("description");
-const startButton = document.getElementById("start");
-
-bestEl.textContent = best;
-
-// Звук
-
-let audioContext;
-
-function playSound(freq = 440) {
-    if (!soundEnabled) return;
-
-    try {
-        audioContext = audioContext || new (
-            window.AudioContext || window.webkitAudioContext
-        )();
-
-        if (audioContext.state === "suspended") {
-            audioContext.resume();
-        }
-
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-
-        oscillator.connect(gain);
-        gain.connect(audioContext.destination);
-
-        oscillator.frequency.value = freq;
-        gain.gain.setValueAtTime(0.07, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(
-            0.001, audioContext.currentTime + 0.15
-        );
-
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.15);
-
-    } catch (e) {}
+function saveData(){
+ localStorage.setItem("snakeData",JSON.stringify({
+  unlocked:unlocked,best:best,records:records
+ }));
 }
 
-// Статистика
-
-function updateStats() {
-    scoreEl.textContent = score;
-    bestEl.textContent = best;
-    speedEl.textContent = speed;
+function updateStats(){
+ $("score").textContent=score;
+ $("best").textContent=best;
+ $("level").textContent=level;
 }
 
-// Створення їжі
-
-function createFood() {
-    do {
-        food = {
-            x: Math.floor(Math.random() * COUNT),
-            y: Math.floor(Math.random() * COUNT)
-        };
-    } while (
-        snake.some(p => p.x === food.x && p.y === food.y)
-    );
+function playSound(freq=440){
+ if(!soundEnabled)return;
+ try{
+  audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();
+  if(audioContext.state==="suspended")audioContext.resume();
+  const osc=audioContext.createOscillator();
+  const gain=audioContext.createGain();
+  osc.connect(gain);gain.connect(audioContext.destination);
+  osc.frequency.value=freq;
+  gain.gain.setValueAtTime(.06,audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.15);
+  osc.start();osc.stop(audioContext.currentTime+.15);
+ }catch(e){}
 }
 
-// Початковий стан
-
-function resetGame() {
-    snake = [
-        {x: 12, y: 12},
-        {x: 11, y: 12},
-        {x: 10, y: 12}
-    ];
-
-    direction = {x: 1, y: 0};
-    nextDirection = {x: 1, y: 0};
-
-    score = 0;
-    speed = 1;
-
-    createFood();
-    updateStats();
-    draw();
+function createFood(){
+ do{
+  food={x:Math.floor(Math.random()*COUNT),y:Math.floor(Math.random()*COUNT)};
+ }while(snake.some(p=>p.x===food.x&&p.y===food.y));
 }
 
-// Малювання
-
-function draw() {
-
-    ctx.fillStyle = "#0c1b28";
-    ctx.fillRect(0, 0, SIZE, SIZE);
-
-    // Сітка
-
-    ctx.strokeStyle = "#172c3b";
-    ctx.lineWidth = 1;
-
-    for (let i = 0; i <= COUNT; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * CELL, 0);
-        ctx.lineTo(i * CELL, SIZE);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(0, i * CELL);
-        ctx.lineTo(SIZE, i * CELL);
-        ctx.stroke();
-    }
-
-    // Їжа
-
-    const fx = food.x * CELL + CELL / 2;
-    const fy = food.y * CELL + CELL / 2;
-
-    ctx.shadowColor = "#ff5577";
-    ctx.shadowBlur = 20;
-    ctx.fillStyle = "#ff5577";
-
-    ctx.beginPath();
-    ctx.arc(fx, fy, 9, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-
-    // Змійка
-
-    snake.forEach((part, index) => {
-
-        const x = part.x * CELL + 2;
-        const y = part.y * CELL + 2;
-        const size = CELL - 4;
-
-        const gradient = ctx.createLinearGradient(
-            x, y, x + size, y + size
-        );
-
-        if (index === 0) {
-            gradient.addColorStop(0, "#7dffd0");
-            gradient.addColorStop(1, "#2de6a0");
-        } else {
-            gradient.addColorStop(0, "#37e6a0");
-            gradient.addColorStop(1, "#129c70");
-        }
-
-        ctx.fillStyle = gradient;
-        ctx.shadowColor = "#36e6a0";
-        ctx.shadowBlur = index === 0 ? 14 : 4;
-
-        ctx.beginPath();
-        ctx.roundRect(x, y, size, size, 7);
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
-
-        // Очі
-
-        if (index === 0) {
-
-            ctx.fillStyle = "#062519";
-
-            let eyes;
-
-            if (direction.x === 1) {
-                eyes = [[17, 7], [17, 15]];
-            } else if (direction.x === -1) {
-                eyes = [[7, 7], [7, 15]];
-            } else if (direction.y === -1) {
-                eyes = [[7, 7], [15, 7]];
-            } else {
-                eyes = [[7, 17], [15, 17]];
-            }
-
-            eyes.forEach(([ex, ey]) => {
-                ctx.beginPath();
-                ctx.arc(x + ex, y + ey, 2.3, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
-    });
+function resetGame(){
+ clearInterval(gameInterval);
+ snake=[{x:12,y:12},{x:11,y:12},{x:10,y:12}];
+ direction={x:1,y:0};
+ nextDirection={x:1,y:0};
+ score=0;
+ createFood();
+ updateStats();
+ draw();
 }
 
-// Рух
+function draw(){
+ ctx.fillStyle="#0c1b28";
+ ctx.fillRect(0,0,SIZE,SIZE);
 
-function move() {
+ ctx.strokeStyle="#172c3b";
+ ctx.lineWidth=1;
+ for(let i=0;i<=COUNT;i++){
+  ctx.beginPath();ctx.moveTo(i*CELL,0);ctx.lineTo(i*CELL,SIZE);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(SIZE,i*CELL);ctx.stroke();
+ }
 
-    if (!running || paused) return;
+ const fx=food.x*CELL+CELL/2;
+ const fy=food.y*CELL+CELL/2;
+ ctx.shadowColor="#ff5577";ctx.shadowBlur=20;
+ ctx.fillStyle="#ff5577";
+ ctx.beginPath();ctx.arc(fx,fy,9,0,Math.PI*2);ctx.fill();
+ ctx.shadowBlur=0;
 
-    direction = nextDirection;
+ snake.forEach((part,index)=>{
+  const x=part.x*CELL+2,y=part.y*CELL+2,size=CELL-4;
+  const gradient=ctx.createLinearGradient(x,y,x+size,y+size);
+  if(index===0){
+   gradient.addColorStop(0,"#7dffd0");
+   gradient.addColorStop(1,"#2de6a0");
+  }else{
+   gradient.addColorStop(0,"#37e6a0");
+   gradient.addColorStop(1,"#129c70");
+  }
+  ctx.fillStyle=gradient;
+  ctx.shadowColor="#36e6a0";
+  ctx.shadowBlur=index===0?14:4;
+  ctx.beginPath();ctx.roundRect(x,y,size,size,7);ctx.fill();
+  ctx.shadowBlur=0;
 
-    const head = {
-        x: snake[0].x + direction.x,
-        y: snake[0].y + direction.y
-    };
-
-    // Стіни
-
-    if (
-        head.x < 0 || head.x >= COUNT ||
-        head.y < 0 || head.y >= COUNT
-    ) {
-        gameOver();
-        return;
-    }
-
-    const eating = head.x === food.x && head.y === food.y;
-
-    const body = eating ? snake : snake.slice(0, -1);
-
-    // Зіткнення
-
-    if (body.some(p => p.x === head.x && p.y === head.y)) {
-        gameOver();
-        return;
-    }
-
-    snake.unshift(head);
-
-    if (eating) {
-
-        score += 10;
-        playSound(650);
-
-        if (score > best) {
-            best = score;
-            localStorage.setItem("snakeBest", best);
-        }
-
-        speed = Math.min(10, 1 + Math.floor(score / 50));
-
-        createFood();
-        updateStats();
-
-        clearInterval(gameInterval);
-
-        gameInterval = setInterval(
-            move,
-            Math.max(65, 150 - (speed - 1) * 12)
-        );
-
-    } else {
-        snake.pop();
-    }
-
-    draw();
+  if(index===0){
+   ctx.fillStyle="#062519";
+   let eyes;
+   if(direction.x===1)eyes=[[17,7],[17,15]];
+   else if(direction.x===-1)eyes=[[7,7],[7,15]];
+   else if(direction.y===-1)eyes=[[7,7],[15,7]];
+   else eyes=[[7,17],[15,17]];
+   eyes.forEach(([ex,ey])=>{
+    ctx.beginPath();ctx.arc(x+ex,y+ey,2.3,0,Math.PI*2);ctx.fill();
+   });
+  }
+ });
 }
 
-// Завершення
-
-function gameOver() {
-
-    running = false;
-    clearInterval(gameInterval);
-
-    playSound(180);
-
-    message.textContent = "💀 ГРУ ЗАВЕРШЕНО";
-
-    description.innerHTML =
-        "Твій рахунок: " + score +
-        "<br>Спробуй побити свій рекорд!";
-
-    startButton.textContent = "ГРАТИ ЗНОВУ";
-
-    overlay.classList.remove("hidden");
+function gameSpeed(){
+ return Math.max(65,160-(level-1)*10);
 }
 
-// Старт
+function move(){
+ if(!running||paused)return;
 
-function startGame() {
+ direction=nextDirection;
 
-    clearInterval(gameInterval);
+ const head={
+  x:snake[0].x+direction.x,
+  y:snake[0].y+direction.y
+ };
 
-    resetGame();
+ if(head.x<0||head.x>=COUNT||head.y<0||head.y>=COUNT){
+  gameOver();return;
+ }
 
-    running = true;
-    paused = false;
+ const eating=head.x===food.x&&head.y===food.y;
+ const body=eating?snake:snake.slice(0,-1);
 
-    overlay.classList.add("hidden");
+ if(body.some(p=>p.x===head.x&&p.y===head.y)){
+  gameOver();return;
+ }
 
-    gameInterval = setInterval(move, 150);
+ snake.unshift(head);
+
+ if(eating){
+  score+=10;
+  playSound(650);
+
+  if(score>best)best=score;
+
+  records[level]=Math.max(Number(records[level])||0,score);
+
+  createFood();
+  updateStats();
+  saveData();
+
+  if(score>=TARGET*10){
+   completeLevel();return;
+  }
+ }else{
+  snake.pop();
+ }
+
+ draw();
 }
 
-// Пауза
-
-function togglePause() {
-
-    if (!running) return;
-
-    paused = !paused;
-
-    if (paused) {
-
-        message.textContent = "⏸ ПАУЗА";
-        description.textContent = "Натисни продовжити";
-        startButton.textContent = "ПРОДОВЖИТИ";
-
-        overlay.classList.remove("hidden");
-
-    } else {
-
-        overlay.classList.add("hidden");
-
-    }
+function startTimer(){
+ clearInterval(gameInterval);
+ gameInterval=setInterval(move,gameSpeed());
 }
 
-// Керування телефоном
-
-function mobileMove(move) {
-
-    if (!running || paused) return;
-
-    if (move === "up" && direction.y !== 1) {
-        nextDirection = {x: 0, y: -1};
-    }
-
-    if (move === "down" && direction.y !== -1) {
-        nextDirection = {x: 0, y: 1};
-    }
-
-    if (move === "left" && direction.x !== 1) {
-        nextDirection = {x: -1, y: 0};
-    }
-
-    if (move === "right" && direction.x !== -1) {
-        nextDirection = {x: 1, y: 0};
-    }
+function startSelected(){
+ if(!snake)resetGame();
+ score=0;
+ resetGame();
+ running=true;
+ paused=false;
+ hideOverlay();
+ startTimer();
 }
 
-// Клавіатура
+function gameOver(){
+ running=false;
+ clearInterval(gameInterval);
+ playSound(180);
+ showOverlay(
+  "💀 ГРУ ЗАВЕРШЕНО",
+  "Твій рахунок: "+score+"<br>Рівень: "+level+"<br>Спробуй ще раз!",
+  '<button class="main-button" onclick="startSelected()">ГРАТИ ЗНОВУ</button><button class="secondary" onclick="showHome()">МЕНЮ</button>'
+ );
+ saveData();
+}
 
-document.addEventListener("keydown", e => {
+function completeLevel(){
+ running=false;
+ clearInterval(gameInterval);
+ playSound(850);
 
-    const key = e.key.toLowerCase();
+ if(level===10){
+  showOverlay(
+   "🏆 ПЕРЕМОГА!",
+   "Вітаємо! Ти пройшов усі 10 рівнів!<br>Твій результат: "+score,
+   '<button class="main-button" onclick="showHome()">У МЕНЮ</button>'
+  );
+  return;
+ }
 
-    if ([
-        "arrowup", "arrowdown",
-        "arrowleft", "arrowright", " "
-    ].includes(key)) {
-        e.preventDefault();
-    }
+ unlocked=Math.max(unlocked,level+1);
+ saveData();
 
-    if (key === " ") {
-        togglePause();
-        return;
-    }
+ const next=level+1;
 
-    if (!running || paused) return;
+ showOverlay(
+  "🎉 РІВЕНЬ ПРОЙДЕНО!",
+  "Ти зібрав усі 5 яблук!<br>Відкрито рівень "+next,
+  '<button class="main-button" onclick="nextLevel()">НАСТУПНИЙ РІВЕНЬ</button><button class="secondary" onclick="showHome()">МЕНЮ</button>'
+ );
+}
 
-    if (
-        (key === "arrowup" || key === "w") &&
-        direction.y !== 1
-    ) mobileMove("up");
+function nextLevel(){
+ level=Math.min(10,level+1);
+ startSelected();
+}
 
-    if (
-        (key === "arrowdown" || key === "s") &&
-        direction.y !== -1
-    ) mobileMove("down");
+function showOverlay(title,text,buttons){
+ $("message").textContent=title;
+ $("description").innerHTML=text;
+ $("menu").innerHTML=buttons;
+ $("overlay").classList.remove("hidden");
+}
 
-    if (
-        (key === "arrowleft" || key === "a") &&
-        direction.x !== 1
-    ) mobileMove("left");
+function hideOverlay(){
+ $("overlay").classList.add("hidden");
+}
 
-    if (
-        (key === "arrowright" || key === "d") &&
-        direction.x !== -1
-    ) mobileMove("right");
+function showHome(){
+ running=false;paused=false;
+ clearInterval(gameInterval);
+ level=1;score=0;
+ updateStats();
+ showOverlay(
+  "🐍 SNAKE 2D",
+  "Збирай яблука, проходь рівні та встановлюй рекорди!",
+  '<button class="main-button" onclick="startSelected()">▶ ГРАТИ</button><button class="secondary" onclick="showLevels()">🏆 РІВНІ</button><button class="secondary" onclick="showRecords()">📋 РЕКОРДИ</button>'
+ );
+}
 
+function showLevels(){
+ running=false;clearInterval(gameInterval);
+ let html='<div class="level-grid">';
+ for(let i=1;i<=10;i++){
+  html+='<button class="level-btn '+(i<=unlocked?'open':'')+'" '+(i>unlocked?'disabled':'')+' onclick="chooseLevel('+i+')">'+(i<=unlocked?'🔓':'🔒')+' '+i+'</button>';
+ }
+ html+='</div><button class="secondary" onclick="showHome()">← НАЗАД</button>';
+ showOverlay("🏆 РІВНІ","Обирай відкритий рівень. Для проходження збери 5 яблук.",html);
+}
+
+function chooseLevel(n){
+ if(n>unlocked)return;
+ level=n;
+ startSelected();
+}
+
+function showRecords(){
+ running=false;clearInterval(gameInterval);
+ let html='<div class="record-list">';
+ html+='<div class="record-row"><span>Загальний рекорд</span><strong>'+best+'</strong></div>';
+ for(let i=1;i<=10;i++){
+  html+='<div class="record-row"><span>Рівень '+i+'</span><strong>'+(records[i]||0)+'</strong></div>';
+ }
+ html+='</div><button class="secondary" onclick="showHome()">← НАЗАД</button>';
+ showOverlay("📋 РЕКОРДИ","Твої найкращі результати:",html);
+}
+
+function togglePause(){
+ if(!running)return;
+ paused=!paused;
+ if(paused){
+  clearInterval(gameInterval);
+  showOverlay("⏸ ПАУЗА","Гру призупинено.",
+   '<button class="main-button" onclick="resumeGame()">ПРОДОВЖИТИ</button><button class="secondary" onclick="showHome()">МЕНЮ</button>');
+ }else{
+  hideOverlay();startTimer();
+ }
+}
+
+function resumeGame(){
+ paused=false;hideOverlay();startTimer();
+}
+
+function mobileMove(move){
+ if(!running||paused)return;
+ if(move==="up"&&direction.y!==1)nextDirection={x:0,y:-1};
+ if(move==="down"&&direction.y!==-1)nextDirection={x:0,y:1};
+ if(move==="left"&&direction.x!==1)nextDirection={x:-1,y:0};
+ if(move==="right"&&direction.x!==-1)nextDirection={x:1,y:0};
+}
+
+document.addEventListener("keydown",e=>{
+ const key=e.key.toLowerCase();
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();
+ if(key===" "){togglePause();return}
+ if(!running||paused)return;
+ if(key==="arrowup"||key==="w")mobileMove("up");
+ if(key==="arrowdown"||key==="s")mobileMove("down");
+ if(key==="arrowleft"||key==="a")mobileMove("left");
+ if(key==="arrowright"||key==="d")mobileMove("right");
 });
 
-// Свайпи пальцем
+let touchX=0,touchY=0;
 
-let touchStartX = 0;
-let touchStartY = 0;
+canvas.addEventListener("touchstart",e=>{
+ touchX=e.changedTouches[0].clientX;
+ touchY=e.changedTouches[0].clientY;
+},{passive:true});
 
-canvas.addEventListener("touchstart", e => {
+canvas.addEventListener("touchend",e=>{
+ const dx=e.changedTouches[0].clientX-touchX;
+ const dy=e.changedTouches[0].clientY-touchY;
+ if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;
+ if(Math.abs(dx)>Math.abs(dy))mobileMove(dx>0?"right":"left");
+ else mobileMove(dy>0?"down":"up");
+},{passive:true});
 
-    const touch = e.changedTouches[0];
+$("pause").onclick=togglePause;
 
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
+$("restart").onclick=()=>{
+ if(!running&&level===1&&score===0){
+  startSelected();return;
+ }
+ startSelected();
+};
 
-}, {passive: true});
-
-canvas.addEventListener("touchend", e => {
-
-    const touch = e.changedTouches[0];
-
-    const dx = touch.clientX - touchStartX;
-    const dy = touch.clientY - touchStartY;
-
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
-
-    if (Math.abs(dx) > Math.abs(dy)) {
-
-        mobileMove(dx > 0 ? "right" : "left");
-
-    } else {
-
-        mobileMove(dy > 0 ? "down" : "up");
-
-    }
-
-}, {passive: true});
-
-// Кнопки
-
-startButton.addEventListener("click", () => {
-
-    if (paused && running) {
-        togglePause();
-    } else {
-        startGame();
-    }
-
-});
-
-document.getElementById("pause")
-    .addEventListener("click", togglePause);
-
-document.getElementById("restart")
-    .addEventListener("click", () => {
-
-        message.textContent = "🐍 SNAKE";
-
-        description.innerHTML =
-            "Збирай їжу та збільшуй змійку!<br>Спробуй побити рекорд.";
-
-        startButton.textContent = "ПОЧАТИ ГРУ";
-
-        startGame();
-    });
-
-document.getElementById("sound")
-    .addEventListener("click", e => {
-
-        soundEnabled = !soundEnabled;
-
-        e.target.textContent = soundEnabled
-            ? "🔊 Звук"
-            : "🔇 Без звуку";
-    });
-
-// Запуск початкового екрана
+$("sound").onclick=e=>{
+ soundEnabled=!soundEnabled;
+ e.target.textContent=soundEnabled?"🔊 Звук":"🔇 Без звуку";
+};
 
 resetGame();
+updateStats();
+showHome();
 
 </script>
-
 </body>
 </html>
 
-</script>
-
-</body>
-</html>
