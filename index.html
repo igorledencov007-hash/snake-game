@@ -3,453 +3,467 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Snake 2D</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snake 2D PRO</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
- min-height:100vh;background:radial-gradient(circle at top,#183344,#080e18 75%);
- color:white;font-family:Arial,sans-serif;display:flex;
- justify-content:center;align-items:center;padding:15px;
- user-select:none
-}
-.game{width:100%;max-width:620px;text-align:center}
-h1{font-size:clamp(30px,7vw,44px);letter-spacing:4px;margin-bottom:7px}
-h1 span{color:#36e6a0}
-.subtitle{color:#91a8b8;margin-bottom:18px;font-size:14px}
-.stats{display:flex;gap:9px;margin-bottom:13px}
-.stat{flex:1;background:#142536;border:1px solid #294558;padding:12px 5px;border-radius:13px}
-.stat small{display:block;color:#91a8b8;font-size:11px;margin-bottom:6px}
-.stat strong{font-size:23px;color:#36e6a0}
-.board{position:relative;background:#0c1823;border:2px solid #294456;border-radius:16px;padding:7px;box-shadow:0 15px 50px #0008}
-canvas{width:100%;height:auto;display:block;border-radius:9px;touch-action:none}
-.overlay{
- position:absolute;inset:7px;border-radius:9px;background:#06111df2;
- display:flex;flex-direction:column;justify-content:center;align-items:center;
- gap:14px;padding:15px;overflow-y:auto
-}
-.overlay.hidden{display:none}
-.overlay h2{color:#36e6a0;font-size:clamp(24px,6vw,34px)}
-.overlay p{color:#c0ced8;line-height:1.6;font-size:14px}
-button{border:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.main-button{
- padding:13px 22px;border-radius:10px;background:#36e6a0;color:#071810;
- font-size:15px;font-weight:bold;min-width:145px
-}
-.main-button:active{transform:scale(.96)}
-.menu-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-.secondary{
- padding:11px 15px;border-radius:10px;background:#1a3042;
- border:1px solid #36556a;color:white;font-size:14px
-}
-.secondary:disabled{opacity:.3;cursor:not-allowed}
-.actions{display:flex;justify-content:center;gap:10px;margin-top:13px;flex-wrap:wrap}
-.actions button{padding:11px 16px;border-radius:10px;background:#1a3042;border:1px solid #36556a;color:white;font-size:14px}
-.mobile-controls{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:18px}
-.mobile-controls .middle{display:flex;gap:9px}
-.mobile-controls button{width:65px;height:53px;background:#193448;border:1px solid #36e6a0;border-radius:13px;color:white;font-size:25px}
-.help{color:#8196a7;font-size:12px;margin-top:17px;line-height:1.7}
-.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;max-width:380px}
-.level-btn{padding:13px 3px;border-radius:9px;background:#1a3042;color:white;border:1px solid #36556a;font-weight:bold}
-.level-btn.open{background:#36e6a0;color:#071810}
-.level-btn:disabled{opacity:.35}
-.record-list{width:100%;max-width:350px;text-align:left}
-.record-row{padding:11px;margin:7px 0;background:#142536;border-radius:9px;display:flex;justify-content:space-between}
-@media(min-width:700px){.mobile-controls{display:none}}
-@media(max-width:380px){.stat strong{font-size:19px}.mobile-controls button{width:59px;height:49px}}
+:root{--bg:#071522;--panel:#102638;--text:#eafaff;--accent:#20e3a2;--muted:#91aab9}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,#15354a,var(--bg) 65%);color:var(--text);font-family:Arial,sans-serif;text-align:center;min-height:100vh;padding:18px 10px}
+h1{font-size:clamp(30px,7vw,48px);margin:8px 0;color:var(--accent);letter-spacing:4px;text-shadow:0 0 18px #20e3a277}
+h2{margin:8px 0 16px}
+p{color:var(--muted)}
+.wrap{width:min(100%,650px);margin:auto}
+.panel{background:#102638eF;border:1px solid #28506a;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 10px 35px #0005}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}
+.stat{background:#102638;border:1px solid #28506a;border-radius:12px;padding:10px 3px}
+.stat small{display:block;color:var(--muted);font-size:11px}
+.stat strong{font-size:19px;color:var(--accent)}
+button{border:0;border-radius:11px;background:var(--accent);color:#06251d;font-weight:bold;font-size:15px;padding:12px 17px;margin:5px;cursor:pointer;transition:.15s}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}
+button:active{transform:scale(.97)}
+button.secondary{background:#25475c;color:white}
+button.danger{background:#d95368;color:white}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.hidden{display:none!important}
+#gameArea{position:relative;width:min(100%,600px);margin:auto}
+canvas{display:block;width:100%;height:auto;background:#071923;border:3px solid #28506a;border-radius:13px;touch-action:none}
+#overlay{position:absolute;inset:3px;background:#061522eF;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:15px}
+.overlayBox{width:100%;max-width:400px}
+.overlayBox h2{color:var(--accent);font-size:27px}
+#overlay p{line-height:1.5}
+.controls{display:grid;grid-template-columns:repeat(3,65px);grid-template-rows:repeat(2,55px);justify-content:center;gap:5px;margin:15px auto}
+.controls button{margin:0;padding:8px;font-size:23px;background:#1b4255;color:white;touch-action:manipulation}
+.controls .up{grid-column:2}
+.controls .left{grid-column:1;grid-row:2}
+.controls .down{grid-column:2;grid-row:2}
+.controls .right{grid-column:3;grid-row:2}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#0b1d2b;border:1px solid #28485b;border-radius:12px;padding:12px;margin:8px 0;text-align:left}
+.item .desc{font-size:13px;color:var(--muted);margin-top:4px}
+.skinDot{display:inline-block;width:22px;height:22px;border-radius:50%;vertical-align:middle;margin-right:7px;border:2px solid #ffffff55}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.level{background:#0b1d2b;border:1px solid #28485b;border-radius:10px;padding:13px}
+.level.locked{opacity:.4}
+.level.done{border-color:var(--accent)}
+table{width:100%;border-collapse:collapse}
+td,th{padding:9px;border-bottom:1px solid #294457}
+th{color:var(--accent)}
+footer{font-size:12px;color:#7893a4;margin:20px}
+@media(max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}button{padding:11px 13px}.panel{padding:13px}}
 </style>
 </head>
-
 <body>
-<div class="game">
+<div class="wrap">
+<h1>🐍 SNAKE 2D PRO</h1>
+<p>Збирай яблука, заробляй монети та відкривай нові рівні!</p>
 
-<h1>SNAKE <span>2D</span></h1>
-<p class="subtitle">Твоя власна гра!</p>
+<div id="home" class="panel">
+<h2>ГОЛОВНЕ МЕНЮ</h2>
+<p>Твій гаманець: 🪙 <strong id="homeCoins">0</strong></p>
+<button onclick="showGame()">▶ ГРАТИ</button>
+<button class="secondary" onclick="showLevels()">🗺 РІВНІ</button>
+<button class="secondary" onclick="showShop()">🛒 МАГАЗИН</button>
+<button class="secondary" onclick="showAchievements()">🏆 ДОСЯГНЕННЯ</button>
+<button class="secondary" onclick="showRecords()">🥇 РЕКОРДИ</button>
+<button class="secondary" onclick="showThemes()">🎨 ТЕМИ</button>
+</div>
 
+<div id="game" class="hidden">
 <div class="stats">
- <div class="stat"><small>РАХУНОК</small><strong id="score">0</strong></div>
- <div class="stat"><small>РЕКОРД</small><strong id="best">0</strong></div>
- <div class="stat"><small>РІВЕНЬ</small><strong id="level">1</strong></div>
+<div class="stat"><small>РАХУНОК</small><strong id="score">0</strong></div>
+<div class="stat"><small>РЕКОРД</small><strong id="best">0</strong></div>
+<div class="stat"><small>МОНЕТИ</small><strong id="coins">0</strong></div>
+<div class="stat"><small>РІВЕНЬ</small><strong id="levelLabel">1</strong></div>
+</div>
+<div id="gameArea">
+<canvas id="canvas" width="600" height="600"></canvas>
+<div id="overlay">
+<div class="overlayBox">
+<h2 id="overlayTitle">ГОТОВИЙ?</h2>
+<p id="overlayText">Збери 5 яблук, щоб пройти рівень. Не врізайся в себе або перешкоди!</p>
+<button id="overlayButton" onclick="startGame()">ПОЧАТИ ГРУ</button>
+<button class="secondary" onclick="goHome()">МЕНЮ</button>
+</div>
+</div>
+</div>
+<div class="controls">
+<button class="up" onclick="setDirection('up')">▲</button>
+<button class="left" onclick="setDirection('left')">◀</button>
+<button class="down" onclick="setDirection('down')">▼</button>
+<button class="right" onclick="setDirection('right')">▶</button>
+</div>
+<button class="secondary" onclick="togglePause()">⏸ ПАУЗА</button>
+<button class="secondary" onclick="startGame()">↻ ЗАНОВО</button>
+<button class="secondary" onclick="toggleSound()" id="soundButton">🔊 ЗВУК</button>
+<button class="secondary" onclick="goHome()">МЕНЮ</button>
+<p id="gameHint">Керування: стрілки або WASD. На телефоні — кнопки чи свайп.</p>
 </div>
 
-<div class="board">
- <canvas id="canvas" width="600" height="600"></canvas>
-
- <div class="overlay" id="overlay">
-  <h2 id="message">🐍 SNAKE 2D</h2>
-  <p id="description">Вітаємо у грі! Обирай рівень та встановлюй рекорди.</p>
-  <div id="menu" class="menu-buttons">
-   <button class="main-button" onclick="startSelected()">▶ ГРАТИ</button>
-   <button class="secondary" onclick="showLevels()">🏆 РІВНІ</button>
-   <button class="secondary" onclick="showRecords()">📋 РЕКОРДИ</button>
-  </div>
- </div>
+<div id="levels" class="panel hidden">
+<h2>🗺 РІВНІ</h2><div id="levelList" class="grid2"></div>
+<button class="secondary" onclick="goHome()">НАЗАД</button>
 </div>
 
-<div class="actions">
- <button id="pause">⏸ Пауза</button>
- <button id="restart">↻ Заново</button>
- <button id="sound">🔊 Звук</button>
+<div id="shop" class="panel hidden">
+<h2>🛒 МАГАЗИН СКІНІВ</h2>
+<p>Монети: 🪙 <strong id="shopCoins">0</strong></p>
+<div id="skinList"></div>
+<button class="secondary" onclick="goHome()">НАЗАД</button>
 </div>
 
-<div class="mobile-controls">
- <button onclick="mobileMove('up')">⬆️</button>
- <div class="middle">
-  <button onclick="mobileMove('left')">⬅️</button>
-  <button onclick="mobileMove('down')">⬇️</button>
-  <button onclick="mobileMove('right')">➡️</button>
- </div>
+<div id="achievements" class="panel hidden">
+<h2>🏆 ДОСЯГНЕННЯ</h2><div id="achievementList"></div>
+<button class="secondary" onclick="goHome()">НАЗАД</button>
 </div>
 
-<p class="help">
- КОМП'ЮТЕР: стрілки або WASD<br>
- ТЕЛЕФОН: кнопки або свайпи<br>
- ПРОБІЛ — пауза
-</p>
+<div id="records" class="panel hidden">
+<h2>🥇 ТОП-10 РЕКОРДІВ</h2><div id="recordList"></div>
+<button class="secondary" onclick="goHome()">НАЗАД</button>
+</div>
+
+<div id="themes" class="panel hidden">
+<h2>🎨 ТЕМИ ГРИ</h2><div id="themeList"></div>
+<button class="secondary" onclick="goHome()">НАЗАД</button>
+</div>
+<footer>Snake 2D PRO • Твоя власна гра</footer>
 </div>
 
 <script>
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
-
-const SIZE=600,CELL=25,COUNT=24;
-const TARGET=5;
-
-let snake,food,direction,nextDirection;
-let score=0,best=0,level=1;
-let running=false,paused=false,soundEnabled=true;
-let gameInterval=null,audioContext;
-
-let saved;
-try{
- saved=JSON.parse(localStorage.getItem("snakeData"))||{};
-}catch(e){saved={}}
-
-let unlocked=Math.max(1,Math.min(10,Number(saved.unlocked)||1));
-let records=saved.records||{};
-best=Number(saved.best)||0;
-
+const CELL=25,COUNT=24;
 const $=id=>document.getElementById(id);
 
-function saveData(){
- localStorage.setItem("snakeData",JSON.stringify({
-  unlocked:unlocked,best:best,records:records
- }));
+const skins=[
+ {name:"Класична",color:"#20e3a2",price:0},
+ {name:"Вогняна",color:"#ff654f",price:30},
+ {name:"Крижана",color:"#42c9ff",price:50},
+ {name:"Золота",color:"#ffd447",price:80},
+ {name:"Фіолетова",color:"#bd79ff",price:100},
+ {name:"Рожева",color:"#ff70b7",price:120},
+ {name:"Неонова",color:"#baff38",price:150}
+];
+const themes=[
+ {name:"Нічна",bg:"#071923",grid:"#102c38",price:0},
+ {name:"Лісова",bg:"#102516",grid:"#1b3b24",price:30},
+ {name:"Космос",bg:"#130e2c",grid:"#29204b",price:50},
+ {name:"Світла",bg:"#dcecf2",grid:"#c1d9e2",price:70}
+];
+const achievements=[
+ {id:"first",name:"Перше яблуко",desc:"Збери перше яблуко",reward:10},
+ {id:"score100",name:"Сотня",desc:"Набери 100 очок за гру",reward:20},
+ {id:"score500",name:"Майстер",desc:"Набери 500 очок за гру",reward:50},
+ {id:"food10",name:"Голодний",desc:"Збери 10 яблук за одну гру",reward:25},
+ {id:"level5",name:"Дослідник",desc:"Відкрий 5 рівень",reward:50},
+ {id:"level10",name:"Легенда",desc:"Відкрий 10 рівень",reward:100},
+ {id:"coins100",name:"Багатій",desc:"Збери 100 монет загалом",reward:40},
+ {id:"games10",name:"Постійний гравець",desc:"Зіграй 10 ігор",reward:30}
+];
+
+let data;
+function loadData(){
+ try{data=JSON.parse(localStorage.getItem("snakeProData"))||{};}catch(e){data={};}
+ data.coins=data.coins||0;
+ data.unlocked=data.unlocked||1;
+ data.records=data.records||[];
+ data.best=data.best||0;
+ data.skin=data.skin||0;
+ data.theme=data.theme||0;
+ data.ownedSkins=data.ownedSkins||[0];
+ data.ownedThemes=data.ownedThemes||[0];
+ data.achievements=data.achievements||[];
+ data.games=data.games||0;
+ data.totalFood=data.totalFood||0;
+ data.levelBest=data.levelBest||{};
 }
+function save(){localStorage.setItem("snakeProData",JSON.stringify(data));}
+loadData();
 
-function updateStats(){
- $("score").textContent=score;
- $("best").textContent=best;
- $("level").textContent=level;
+let snake,food,bonus,obstacles,dir,nextDir,score,foodCount,level;
+let timer=null,running=false,paused=false,soundOn=true;
+let bonusTimer=0,gameMode="normal";
+let swipeStart=null;
+
+function showOnly(id){
+ ["home","game","levels","shop","achievements","records","themes"].forEach(x=>$(x).classList.add("hidden"));
+ $(id).classList.remove("hidden");
 }
-
-function playSound(freq=440){
- if(!soundEnabled)return;
- try{
-  audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();
-  if(audioContext.state==="suspended")audioContext.resume();
-  const osc=audioContext.createOscillator();
-  const gain=audioContext.createGain();
-  osc.connect(gain);gain.connect(audioContext.destination);
-  osc.frequency.value=freq;
-  gain.gain.setValueAtTime(.06,audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.15);
-  osc.start();osc.stop(audioContext.currentTime+.15);
- }catch(e){}
+function goHome(){stopTimer();running=false;paused=false;showOnly("home");updateHome();}
+function updateHome(){$("homeCoins").textContent=data.coins;}
+function showGame(){
+ showOnly("game");
+ level=Math.min(data.unlocked,10);
+ prepareGame();
+ showOverlay("ГОТОВИЙ?",`Рівень ${level}. Збери 5 яблук, щоб перейти далі!`,"ПОЧАТИ ГРУ");
 }
-
-function createFood(){
- do{
-  food={x:Math.floor(Math.random()*COUNT),y:Math.floor(Math.random()*COUNT)};
- }while(snake.some(p=>p.x===food.x&&p.y===food.y));
-}
-
-function resetGame(){
- clearInterval(gameInterval);
- snake=[{x:12,y:12},{x:11,y:12},{x:10,y:12}];
- direction={x:1,y:0};
- nextDirection={x:1,y:0};
- score=0;
- createFood();
- updateStats();
- draw();
-}
-
-function draw(){
- ctx.fillStyle="#0c1b28";
- ctx.fillRect(0,0,SIZE,SIZE);
-
- ctx.strokeStyle="#172c3b";
- ctx.lineWidth=1;
- for(let i=0;i<=COUNT;i++){
-  ctx.beginPath();ctx.moveTo(i*CELL,0);ctx.lineTo(i*CELL,SIZE);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(SIZE,i*CELL);ctx.stroke();
- }
-
- const fx=food.x*CELL+CELL/2;
- const fy=food.y*CELL+CELL/2;
- ctx.shadowColor="#ff5577";ctx.shadowBlur=20;
- ctx.fillStyle="#ff5577";
- ctx.beginPath();ctx.arc(fx,fy,9,0,Math.PI*2);ctx.fill();
- ctx.shadowBlur=0;
-
- snake.forEach((part,index)=>{
-  const x=part.x*CELL+2,y=part.y*CELL+2,size=CELL-4;
-  const gradient=ctx.createLinearGradient(x,y,x+size,y+size);
-  if(index===0){
-   gradient.addColorStop(0,"#7dffd0");
-   gradient.addColorStop(1,"#2de6a0");
-  }else{
-   gradient.addColorStop(0,"#37e6a0");
-   gradient.addColorStop(1,"#129c70");
-  }
-  ctx.fillStyle=gradient;
-  ctx.shadowColor="#36e6a0";
-  ctx.shadowBlur=index===0?14:4;
-  ctx.beginPath();ctx.roundRect(x,y,size,size,7);ctx.fill();
-  ctx.shadowBlur=0;
-
-  if(index===0){
-   ctx.fillStyle="#062519";
-   let eyes;
-   if(direction.x===1)eyes=[[17,7],[17,15]];
-   else if(direction.x===-1)eyes=[[7,7],[7,15]];
-   else if(direction.y===-1)eyes=[[7,7],[15,7]];
-   else eyes=[[7,17],[15,17]];
-   eyes.forEach(([ex,ey])=>{
-    ctx.beginPath();ctx.arc(x+ex,y+ey,2.3,0,Math.PI*2);ctx.fill();
-   });
-  }
- });
-}
-
-function gameSpeed(){
- return Math.max(65,160-(level-1)*10);
-}
-
-function move(){
- if(!running||paused)return;
-
- direction=nextDirection;
-
- const head={
-  x:snake[0].x+direction.x,
-  y:snake[0].y+direction.y
- };
-
- if(head.x<0||head.x>=COUNT||head.y<0||head.y>=COUNT){
-  gameOver();return;
- }
-
- const eating=head.x===food.x&&head.y===food.y;
- const body=eating?snake:snake.slice(0,-1);
-
- if(body.some(p=>p.x===head.x&&p.y===head.y)){
-  gameOver();return;
- }
-
- snake.unshift(head);
-
- if(eating){
-  score+=10;
-  playSound(650);
-
-  if(score>best)best=score;
-
-  records[level]=Math.max(Number(records[level])||0,score);
-
-  createFood();
-  updateStats();
-  saveData();
-
-  if(score>=TARGET*10){
-   completeLevel();return;
-  }
- }else{
-  snake.pop();
- }
-
- draw();
-}
-
-function startTimer(){
- clearInterval(gameInterval);
- gameInterval=setInterval(move,gameSpeed());
-}
-
-function startSelected(){
- if(!snake)resetGame();
- score=0;
- resetGame();
- running=true;
- paused=false;
- hideOverlay();
- startTimer();
-}
-
-function gameOver(){
- running=false;
- clearInterval(gameInterval);
- playSound(180);
- showOverlay(
-  "💀 ГРУ ЗАВЕРШЕНО",
-  "Твій рахунок: "+score+"<br>Рівень: "+level+"<br>Спробуй ще раз!",
-  '<button class="main-button" onclick="startSelected()">ГРАТИ ЗНОВУ</button><button class="secondary" onclick="showHome()">МЕНЮ</button>'
- );
- saveData();
-}
-
-function completeLevel(){
- running=false;
- clearInterval(gameInterval);
- playSound(850);
-
- if(level===10){
-  showOverlay(
-   "🏆 ПЕРЕМОГА!",
-   "Вітаємо! Ти пройшов усі 10 рівнів!<br>Твій результат: "+score,
-   '<button class="main-button" onclick="showHome()">У МЕНЮ</button>'
-  );
-  return;
- }
-
- unlocked=Math.max(unlocked,level+1);
- saveData();
-
- const next=level+1;
-
- showOverlay(
-  "🎉 РІВЕНЬ ПРОЙДЕНО!",
-  "Ти зібрав усі 5 яблук!<br>Відкрито рівень "+next,
-  '<button class="main-button" onclick="nextLevel()">НАСТУПНИЙ РІВЕНЬ</button><button class="secondary" onclick="showHome()">МЕНЮ</button>'
- );
-}
-
-function nextLevel(){
- level=Math.min(10,level+1);
- startSelected();
-}
-
-function showOverlay(title,text,buttons){
- $("message").textContent=title;
- $("description").innerHTML=text;
- $("menu").innerHTML=buttons;
+function showOverlay(title,msg,button){
+ $("overlayTitle").textContent=title;
+ $("overlayText").textContent=msg;
+ $("overlayButton").textContent=button;
  $("overlay").classList.remove("hidden");
 }
-
-function hideOverlay(){
- $("overlay").classList.add("hidden");
+function hideOverlay(){$("overlay").classList.add("hidden");}
+function updateStats(){
+ $("score").textContent=score;
+ $("best").textContent=data.best;
+ $("coins").textContent=data.coins;
+ $("levelLabel").textContent=level;
 }
-
-function showHome(){
- running=false;paused=false;
- clearInterval(gameInterval);
- level=1;score=0;
- updateStats();
- showOverlay(
-  "🐍 SNAKE 2D",
-  "Збирай яблука, проходь рівні та встановлюй рекорди!",
-  '<button class="main-button" onclick="startSelected()">▶ ГРАТИ</button><button class="secondary" onclick="showLevels()">🏆 РІВНІ</button><button class="secondary" onclick="showRecords()">📋 РЕКОРДИ</button>'
- );
+function prepareGame(){
+ stopTimer();running=false;paused=false;
+ score=0;foodCount=0;bonus=null;bonusTimer=0;
+ snake=[{x:11,y:12},{x:10,y:12},{x:9,y:12}];
+ dir={x:1,y:0};nextDir={x:1,y:0};
+ obstacles=makeObstacles(level);
+ food=createFood();
+ updateStats();draw();
 }
+function makeObstacles(l){
+ let a=[];
+ if(l<3)return a;
+ let count=(l-2)*3;
+ for(let i=0;i<count;i++){
+  let x=(4+(i*7+l*3)%16),y=(3+(i*11+l*5)%18);
+  if((x>8&&x<15&&y>9&&y<15)||a.some(o=>o.x===x&&o.y===y))continue;
+  a.push({x,y});
+ }
+ return a;
+}
+function occupied(x,y){
+ return snake.some(s=>s.x===x&&s.y===y)||obstacles.some(o=>o.x===x&&o.y===y)||(bonus&&bonus.x===x&&bonus.y===y);
+}
+function createFood(){
+ let p;
+ do{p={x:Math.floor(Math.random()*COUNT),y:Math.floor(Math.random()*COUNT)};}
+ while(occupied(p.x,p.y));
+ return p;
+}
+function startGame(){
+ prepareGame();hideOverlay();running=true;paused=false;
+ timer=setInterval(tick,Math.max(65,165-(level-1)*10));
+}
+function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
+function togglePause(){
+ if(!running&&!paused)return;
+ if(paused){paused=false;running=true;timer=setInterval(tick,Math.max(65,165-(level-1)*10));hideOverlay();}
+ else{paused=true;running=false;stopTimer();showOverlay("ПАУЗА","Гра призупинена. Натисни продовжити, щоб грати далі.","ПРОДОВЖИТИ");$("overlayButton").onclick=resumeGame;}
+}
+function resumeGame(){
+ paused=false;running=true;hideOverlay();
+ timer=setInterval(tick,Math.max(65,165-(level-1)*10));
+ $("overlayButton").onclick=startGame;
+}
+function setDirection(d){
+ const dirs={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
+ let n=dirs[d];if(!n)return;
+ if(n.x===-dir.x&&n.y===-dir.y)return;
+ nextDir=n;
+}
+document.addEventListener("keydown",e=>{
+ const k=e.key.toLowerCase();
+ const map={arrowup:"up",w:"up",arrowdown:"down",s:"down",arrowleft:"left",a:"left",arrowright:"right",d:"right"};
+ if(map[k]){e.preventDefault();setDirection(map[k]);}
+ if(k===" "){e.preventDefault();togglePause();}
+});
+canvas.addEventListener("touchstart",e=>{
+ let t=e.changedTouches[0];swipeStart={x:t.clientX,y:t.clientY};
+},{passive:true});
+canvas.addEventListener("touchend",e=>{
+ if(!swipeStart)return;
+ let t=e.changedTouches[0],dx=t.clientX-swipeStart.x,dy=t.clientY-swipeStart.y;
+ if(Math.max(Math.abs(dx),Math.abs(dy))>20){
+  if(Math.abs(dx)>Math.abs(dy))setDirection(dx>0?"right":"left");
+  else setDirection(dy>0?"down":"up");
+ }
+ swipeStart=null;
+},{passive:true});
+
+function tick(){
+ if(!running)return;
+ dir=nextDir;
+ let head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+ if(head.x<0||head.x>=COUNT||head.y<0||head.y>=COUNT){gameOver();return;}
+ if(obstacles.some(o=>o.x===head.x&&o.y===head.y)){gameOver();return;}
+ let eating=head.x===food.x&&head.y===food.y;
+ let bonusEating=bonus&&head.x===bonus.x&&head.y===bonus.y;
+ let body=eating||bonusEating?snake:snake.slice(0,-1);
+ if(body.some(s=>s.x===head.x&&s.y===head.y)){gameOver();return;}
+ snake.unshift(head);
+ if(eating){
+  score+=10;foodCount++;data.totalFood++;
+  data.coins+=1;
+  if(!data.achievements.includes("first"))unlockAchievement("first");
+  if(score>=100)unlockAchievement("score100");
+  if(score>=500)unlockAchievement("score500");
+  if(foodCount>=10)unlockAchievement("food10");
+  if(data.coins>=100)unlockAchievement("coins100");
+  playSound(520);
+  food=createFood();
+  if(Math.random()<.22&&!bonus)createBonus();
+  if(foodCount>=5){completeLevel();return;}
+ }else if(bonusEating){
+  score+=bonus.type==="gold"?50:bonus.type==="blue"?20:30;
+  data.coins+=bonus.type==="gold"?5:2;
+  bonus=null;playSound(800);
+ }else snake.pop();
+ if(bonus){
+  bonusTimer--;
+  if(bonusTimer<=0)bonus=null;
+ }
+ data.best=Math.max(data.best,score);
+ data.levelBest[level]=Math.max(data.levelBest[level]||0,score);
+ save();updateStats();draw();
+}
+function createBonus(){
+ let p;
+ do{p={x:Math.floor(Math.random()*COUNT),y:Math.floor(Math.random()*COUNT)};}
+ while(occupied(p.x,p.y));
+ let r=Math.random();
+ bonus={...p,type:r<.34?"gold":r<.67?"blue":"purple"};
+ bonusTimer=50;
+}
+function completeLevel(){
+ stopTimer();running=false;
+ data.best=Math.max(data.best,score);
+ if(level<10){
+  data.unlocked=Math.max(data.unlocked,level+1);
+  data.coins+=10;
+  if(data.unlocked>=5)unlockAchievement("level5");
+  if(data.unlocked>=10)unlockAchievement("level10");
+  save();
+  showOverlay("РІВЕНЬ ПРОЙДЕНО! 🎉",`Ти пройшов рівень ${level}! Бонус: 10 монет. Наступний рівень: ${level+1}.`,"НАСТУПНИЙ РІВЕНЬ");
+  $("overlayButton").onclick=()=>{level++;startGame();};
+ }else{
+  save();showOverlay("ТИ ПЕРЕМІГ! 🏆","Вітаємо! Ти пройшов усі 10 рівнів!","ГРАТИ ЩЕ РАЗ");
+  $("overlayButton").onclick=startGame;
+ }
+}
+function gameOver(){
+ stopTimer();running=false;paused=false;
+ data.best=Math.max(data.best,score);
+ data.records.push({name:"Гравець",score,level,date:new Date().toLocaleDateString("uk-UA")});
+ data.records.sort((a,b)=>b.score-a.score);
+ data.records=data.records.slice(0,10);
+ data.games++;
+ if(data.games>=10)unlockAchievement("games10");
+ save();
+ let name=prompt("Гру завершено! Введи своє ім'я для таблиці рекордів:","Гравець");
+ if(name&&name.trim()){
+  let rec=data.records.find(r=>r.name==="Гравець"&&r.score===score&&r.level===level);
+  if(rec)rec.name=name.trim().slice(0,18);
+ }
+ save();updateStats();
+ showOverlay("ГРУ ЗАВЕРШЕНО 💥",`Твій рахунок: ${score}. Рівень: ${level}. Спробуй ще раз!`,"СПРОБУВАТИ ЩЕ");
+ $("overlayButton").onclick=startGame;
+}
+function draw(){
+ let theme=themes[data.theme]||themes[0];
+ ctx.fillStyle=theme.bg;ctx.fillRect(0,0,600,600);
+ ctx.strokeStyle=theme.grid;ctx.lineWidth=1;
+ for(let i=0;i<=600;i+=CELL){
+  ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,600);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(600,i);ctx.stroke();
+ }
+ obstacles.forEach(o=>{
+  ctx.fillStyle="#667b8a";ctx.fillRect(o.x*CELL+2,o.y*CELL+2,CELL-4,CELL-4);
+  ctx.fillStyle="#a8bac4";ctx.fillRect(o.x*CELL+5,o.y*CELL+5,CELL-10,4);
+ });
+ if(food){
+  ctx.fillStyle="#ff4d55";ctx.beginPath();ctx.arc(food.x*CELL+12.5,food.y*CELL+13,10,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#70db78";ctx.fillRect(food.x*CELL+13,food.y*CELL+1,4,8);
+ }
+ if(bonus){
+  ctx.fillStyle=bonus.type==="gold"?"#ffd447":bonus.type==="blue"?"#42c9ff":"#bd79ff";
+  ctx.beginPath();ctx.arc(bonus.x*CELL+12.5,bonus.y*CELL+12.5,10,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#fff";ctx.font="bold 13px Arial";ctx.textAlign="center";
+  ctx.fillText(bonus.type==="gold"?"★":bonus.type==="blue"?"❄":"✦",bonus.x*CELL+12.5,bonus.y*CELL+17);
+ }
+ let color=skins[data.skin].color;
+ snake.forEach((s,i)=>{
+  ctx.fillStyle=color;ctx.globalAlpha=i===0?1:Math.max(.45,1-i*.035);
+  ctx.beginPath();ctx.roundRect(s.x*CELL+2,s.y*CELL+2,CELL-4,CELL-4,7);ctx.fill();
+  if(i===0){
+   ctx.globalAlpha=1;ctx.fillStyle="#05251e";
+   let ex=s.x*CELL+(dir.x===1?17:dir.x===-1?6:dir.y===1?7:17);
+   let ey=s.y*CELL+(dir.y===1?17:dir.y===-1?6:dir.x===1?7:17);
+   ctx.beginPath();ctx.arc(ex,ey,2.4,0,Math.PI*2);ctx.fill();
+   ctx.beginPath();ctx.arc(ex+(dir.y===0?0:7),ey+(dir.x===0?0:7),2.4,0,Math.PI*2);ctx.fill();
+  }
+ });
+ ctx.globalAlpha=1;
+}
+function unlockAchievement(id){
+ if(data.achievements.includes(id))return;
+ let a=achievements.find(x=>x.id===id);if(!a)return;
+ data.achievements.push(id);data.coins+=a.reward;
+}
+function playSound(freq){
+ if(!soundOn)return;
+ try{
+  let ac=new (window.AudioContext||window.webkitAudioContext)();
+  let o=ac.createOscillator(),g=ac.createGain();
+  o.frequency.value=freq;g.gain.value=.04;
+  o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.09);
+ }catch(e){}
+}
+function toggleSound(){soundOn=!soundOn;$("soundButton").textContent=soundOn?"🔊 ЗВУК":"🔇 ЗВУК";}
 
 function showLevels(){
- running=false;clearInterval(gameInterval);
- let html='<div class="level-grid">';
+ showOnly("levels");let html="";
  for(let i=1;i<=10;i++){
-  html+='<button class="level-btn '+(i<=unlocked?'open':'')+'" '+(i>unlocked?'disabled':'')+' onclick="chooseLevel('+i+')">'+(i<=unlocked?'🔓':'🔒')+' '+i+'</button>';
+  let open=i<=data.unlocked,done=i<data.unlocked;
+  html+=`<div class="level ${open?"":"locked"} ${done?"done":""}">
+  <strong>${done?"✅":open?"🔓":"🔒"} Рівень ${i}</strong><br>
+  <small>Рекорд: ${data.levelBest[i]||0}</small><br>
+  ${open?`<button onclick="chooseLevel(${i})">ГРАТИ</button>`:"Закрито"}
+  </div>`;
  }
- html+='</div><button class="secondary" onclick="showHome()">← НАЗАД</button>';
- showOverlay("🏆 РІВНІ","Обирай відкритий рівень. Для проходження збери 5 яблук.",html);
+ $("levelList").innerHTML=html;
 }
-
-function chooseLevel(n){
- if(n>unlocked)return;
- level=n;
- startSelected();
+function chooseLevel(n){level=n;showOnly("game");startGame();}
+function showShop(){
+ showOnly("shop");$("shopCoins").textContent=data.coins;
+ $("skinList").innerHTML=skins.map((s,i)=>{
+ let owned=data.ownedSkins.includes(i),selected=data.skin===i;
+ return `<div class="item"><div><span class="skinDot" style="background:${s.color}"></span><strong>${s.name}</strong><div class="desc">${selected?"Обрано":owned?"Вже придбано":s.price+" монет"}</div></div>
+ <button ${selected?"disabled":""} onclick="${owned?`selectSkin(${i})`:`buySkin(${i})`}">${selected?"ОБРАНО":owned?"ОБРАТИ":"КУПИТИ"}</button></div>`;
+ }).join("");
 }
-
+function buySkin(i){
+ if(data.coins<skins[i].price){alert("Недостатньо монет!");return;}
+ data.coins-=skins[i].price;data.ownedSkins.push(i);data.skin=i;save();showShop();
+}
+function selectSkin(i){data.skin=i;save();showShop();}
+function showThemes(){
+ showOnly("themes");
+ $("themeList").innerHTML=themes.map((t,i)=>{
+ let owned=data.ownedThemes.includes(i),selected=data.theme===i;
+ return `<div class="item"><div><strong>${t.name}</strong><div class="desc">Колір ігрового поля</div></div>
+ <button ${selected?"disabled":""} onclick="${owned?`selectTheme(${i})`:`buyTheme(${i})`}">${selected?"ОБРАНО":owned?"ОБРАТИ":t.price+" 🪙"}</button></div>`;
+ }).join("");
+}
+function buyTheme(i){
+ if(data.coins<themes[i].price){alert("Недостатньо монет!");return;}
+ data.coins-=themes[i].price;data.ownedThemes.push(i);data.theme=i;save();showThemes();
+}
+function selectTheme(i){data.theme=i;save();showThemes();}
+function showAchievements(){
+ showOnly("achievements");
+ $("achievementList").innerHTML=achievements.map(a=>{
+ let done=data.achievements.includes(a.id);
+ return `<div class="item"><div><strong>${done?"✅":"🔒"} ${a.name}</strong><div class="desc">${a.desc}</div></div><strong>+${a.reward} 🪙</strong></div>`;
+ }).join("");
+}
 function showRecords(){
- running=false;clearInterval(gameInterval);
- let html='<div class="record-list">';
- html+='<div class="record-row"><span>Загальний рекорд</span><strong>'+best+'</strong></div>';
- for(let i=1;i<=10;i++){
-  html+='<div class="record-row"><span>Рівень '+i+'</span><strong>'+(records[i]||0)+'</strong></div>';
- }
- html+='</div><button class="secondary" onclick="showHome()">← НАЗАД</button>';
- showOverlay("📋 РЕКОРДИ","Твої найкращі результати:",html);
+ showOnly("records");
+ if(!data.records.length){$("recordList").innerHTML="<p>Поки що рекордів немає. Зіграй першу гру!</p>";return;}
+ $("recordList").innerHTML=`<table><tr><th>#</th><th>Гравець</th><th>Очки</th><th>Рівень</th></tr>`+
+ data.records.map((r,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(r.name)}</td><td>${r.score}</td><td>${r.level}</td></tr>`).join("")+"</table>";
 }
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
-function togglePause(){
- if(!running)return;
- paused=!paused;
- if(paused){
-  clearInterval(gameInterval);
-  showOverlay("⏸ ПАУЗА","Гру призупинено.",
-   '<button class="main-button" onclick="resumeGame()">ПРОДОВЖИТИ</button><button class="secondary" onclick="showHome()">МЕНЮ</button>');
- }else{
-  hideOverlay();startTimer();
- }
-}
-
-function resumeGame(){
- paused=false;hideOverlay();startTimer();
-}
-
-function mobileMove(move){
- if(!running||paused)return;
- if(move==="up"&&direction.y!==1)nextDirection={x:0,y:-1};
- if(move==="down"&&direction.y!==-1)nextDirection={x:0,y:1};
- if(move==="left"&&direction.x!==1)nextDirection={x:-1,y:0};
- if(move==="right"&&direction.x!==-1)nextDirection={x:1,y:0};
-}
-
-document.addEventListener("keydown",e=>{
- const key=e.key.toLowerCase();
- if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();
- if(key===" "){togglePause();return}
- if(!running||paused)return;
- if(key==="arrowup"||key==="w")mobileMove("up");
- if(key==="arrowdown"||key==="s")mobileMove("down");
- if(key==="arrowleft"||key==="a")mobileMove("left");
- if(key==="arrowright"||key==="d")mobileMove("right");
-});
-
-let touchX=0,touchY=0;
-
-canvas.addEventListener("touchstart",e=>{
- touchX=e.changedTouches[0].clientX;
- touchY=e.changedTouches[0].clientY;
-},{passive:true});
-
-canvas.addEventListener("touchend",e=>{
- const dx=e.changedTouches[0].clientX-touchX;
- const dy=e.changedTouches[0].clientY-touchY;
- if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;
- if(Math.abs(dx)>Math.abs(dy))mobileMove(dx>0?"right":"left");
- else mobileMove(dy>0?"down":"up");
-},{passive:true});
-
-$("pause").onclick=togglePause;
-
-$("restart").onclick=()=>{
- if(!running&&level===1&&score===0){
-  startSelected();return;
- }
- startSelected();
-};
-
-$("sound").onclick=e=>{
- soundEnabled=!soundEnabled;
- e.target.textContent=soundEnabled?"🔊 Звук":"🔇 Без звуку";
-};
-
-resetGame();
-updateStats();
-showHome();
-
+updateHome();
+prepareGame();
+showOnly("home");
 </script>
 </body>
 </html>
-
